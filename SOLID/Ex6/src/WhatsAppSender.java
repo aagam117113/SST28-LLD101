@@ -1,13 +1,19 @@
+/**
+ * WhatsApp sender: requires E.164 phone format (starts with +).
+ * LSP fix: instead of throwing, returns error result for invalid phone format.
+ */
 public class WhatsAppSender extends NotificationSender {
-    public WhatsAppSender(AuditLog audit) { super(audit); }
+    public WhatsAppSender(AuditLog audit) {
+        super(audit);
+    }
 
     @Override
-    public void send(Notification n) {
-        // LSP violation: tightens precondition
+    public SendResult send(Notification n) {
         if (n.phone == null || !n.phone.startsWith("+")) {
-            throw new IllegalArgumentException("phone must start with + and country code");
+            return SendResult.error("phone must start with + and country code");
         }
         System.out.println("WA -> to=" + n.phone + " body=" + n.body);
         audit.add("wa sent");
+        return SendResult.ok();
     }
 }
